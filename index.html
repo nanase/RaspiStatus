@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nanase Raspi Status</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
+    <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background-color: #212121;
+            margin-top: 2px;
+        }
+
+        .obox {
+            color: white;
+            text-shadow: 0 2px 2px rgba(0, 0, 0, .3);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+            border: solid 1px rgba(0, 0, 0, .5);
+            padding: 1rem 0;
+        }
+
+        .obox-temp {
+            background-color: #208b38;
+            border: solid 1px #208b38;
+            background: #208b38;
+            background: -webkit-gradient(linear, left top, left bottom, from(#208b38), to(#186b2b));
+        }
+
+        .obox-hum {
+            background-color: #2565b0;
+            border: solid 1px #2565b0;
+            background: #2565b0;
+            background: -webkit-gradient(linear, left top, left bottom, from(#2565b0), to(#1e5390));
+        }
+
+        .obox-press {
+            background-color: #da7135;
+            border: solid 1px #da7135;
+            background: #da7135;
+            background: -webkit-gradient(linear, left top, left bottom, from(#da7135), to(#c1642f));
+        }
+
+        .obox-uptime,
+        .obox-obtime {
+            background-color: #454545;
+            border: solid 1px #454545;
+            background: #454545;
+            background: -webkit-gradient(linear, left top, left bottom, from(#454545), to(#333333));
+        }
+
+        .display-big {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .display-unit {
+            font-size: 1rem;
+        }
+
+        .display-name {
+            font-size: 1.0rem;
+            display: block;
+            margin-top: -0.5rem;
+        }
+
+        .updatebar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background-color: rgb(78, 142, 255);
+            box-shadow: 0 1px 2px rgba(78, 142, 255, .5);
+            width: 0%;
+            z-index: 10;
+        }
+    </style>
+    <script>
+        function secondToTime(t) {
+            var padZero = function(v) {
+                return (v < 10 ? '0' : '') + v;
+            };
+            var hms = "";
+            var h = t / 3600 | 0;
+            var m = t % 3600 / 60 | 0;
+            var s = t % 60;
+
+            if (h != 0)
+                return h + ":" + padZero(m) + ":" + padZero(s);
+            else if (m != 0)
+                return m + ":" + padZero(s);
+            else
+                return s + " seconds";
+        }
+
+        function unixtimeToString(unixtime) {
+            var date = new Date(unixtime * 1000);
+            var hours = date.getHours();
+            var minutes = '0' + date.getMinutes();
+            var seconds = '0' + date.getSeconds();
+            return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+        }
+
+        function round(value, precision = 0) {
+            d = Math.pow(10, precision);
+            return Math.round((value + 0) * d) / d;
+        }
+
+        function wait_start() {
+            $('.updatebar').animate({
+                width: "100%"
+            }, 60000, 'easeInExpo', load_json);
+        }
+
+        function load_json() {
+            $.getJSON("http://nanase.cc/raspi/status/json/", function(json) {
+                $('.updatebar').animate({
+                    width: "0%"
+                }, 500, 'easeOutExpo');
+
+                if (json.succeed) {
+                    $('.obox-temp .display-big').text(round(json.temperature, 2));
+                    $('.obox-hum .display-big').text(round(json.humidity, 2));
+                    $('.obox-press .display-big').text(round(json.pressure, 1));
+                    $('.obox-uptime .display-big').text(secondToTime(json.uptime | 0));
+                    $('.obox-obtime .display-big').text(unixtimeToString(json.time | 0));
+                }
+
+                wait_start();
+            });
+        }
+
+        $(function() {
+            load_json();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="updatebar"></div>
+    <div class="container">
+        <div class="row row-eq-height text-center">
+            <div class="obox obox-temp col-xs-4 col-sm-4">
+                <span class="display-big">--</span>
+                <span class="display-unit">℃</span>
+                <span class="display-name">Temperature</span>
+            </div>
+            <div class="obox obox-hum col-xs-4 col-sm-4">
+                <span class="display-big">--</span>
+                <span class="display-unit">%</span>
+                <span class="display-name">Humidity</span>
+            </div>
+            <div class="obox obox-press col-xs-4 col-sm-4">
+                <span class="display-big">--</span>
+                <span class="display-unit">hPa</span>
+                <span class="display-name">Atmospheric pressure</span>
+            </div>
+        </div>
+        <div class="row row-eq-height text-center">
+            <div class="obox obox-uptime col-xs-6 col-sm-6">
+                <span class="display-big">--</span>
+                <span class="display-name">Uptime</span>
+            </div>
+            <div class="obox obox-obtime col-xs-6 col-sm-6">
+                <span class="display-big">--</span>
+                <span class="display-name">Observation time</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
