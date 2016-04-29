@@ -68,11 +68,20 @@
             margin-top: -0.5rem;
         }
 
-        .progressbar {
+        .bar {
+            height: 2px;
             position: absolute;
             top: 0;
             left: 0;
-            height: 2px;
+        }
+
+        .barbox {
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .progressbar {
+            position: absolute;
             width: 0%;
         }
 
@@ -148,8 +157,10 @@
 </head>
 
 <body>
-    <div class="progressbar updatebar"></div>
-    <div class="progressbar errorbar"></div>
+    <div class="bar barbox">
+        <div class="bar progressbar updatebar"></div>
+        <div class="bar progressbar errorbar"></div>
+    </div>
     <div class="container">
         <div class="row row-eq-height text-center">
             <div class="obox obox-temp col-xs-4 col-sm-4">
