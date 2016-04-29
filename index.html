@@ -68,25 +68,35 @@
             margin-top: -0.5rem;
         }
 
-        .updatebar {
+        .progressbar {
             position: absolute;
             top: 0;
             left: 0;
             height: 2px;
+            width: 0%;
+        }
+
+        .progressbar.updatebar {
             background-color: rgb(78, 142, 255);
             box-shadow: 0 1px 2px rgba(78, 142, 255, .5);
-            width: 0%;
             z-index: 10;
+        }
+
+        .progressbar.errorbar {
+            background-color: rgb(255, 78, 78);
+            box-shadow: 0 1px 2px rgba(255, 78, 78, .8);
+            z-index: 11;
         }
     </style>
     <script>
+        var json_path = 'http://nanase.cc/raspi/status/json/';
+
         function secondToTime(t) {
             var z = v => (v < 10 ? '0' : '') + v;
             var h = t / 3600 | 0;
             var m = t % 3600 / 60 | 0;
             var s = t % 60;
-            return
-                (h != 0) ? h + ":" + z(m) + ":" + z(s) :
+            return (h != 0) ? h + ":" + z(m) + ":" + z(s) :
                 (m != 0) ? m + ":" + z(s) : s + " seconds";
         }
 
@@ -107,10 +117,11 @@
         }
 
         function load_json() {
-            $.getJSON("http://nanase.cc/raspi/status/json/", function(json) {
-                $('.updatebar').animate({
-                    width: "0%"
-                }, 500, 'easeOutExpo');
+            $.getJSON(json_path, function(json) {
+                $('.updatebar')
+                    .animate({
+                        width: "0%"
+                    }, 500, 'easeOutExpo');
 
                 if (json.succeed) {
                     $('.obox-temp .display-big').text(round(json.temperature, 2));
@@ -121,17 +132,24 @@
                 }
 
                 wait_start();
+            }).fail(function() {
+                $('.errorbar')
+                    .animate({
+                        width: "100%"
+                    }, 250, 'linear')
+                    .animate({
+                        width: "0%"
+                    }, 30000, 'linear', load_json)
             });
         }
 
-        $(function() {
-            load_json();
-        });
+        $(load_json);
     </script>
 </head>
 
 <body>
-    <div class="updatebar"></div>
+    <div class="progressbar updatebar"></div>
+    <div class="progressbar errorbar"></div>
     <div class="container">
         <div class="row row-eq-height text-center">
             <div class="obox obox-temp col-xs-4 col-sm-4">
