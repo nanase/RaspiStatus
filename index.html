@@ -81,32 +81,22 @@
     </style>
     <script>
         function secondToTime(t) {
-            var padZero = function(v) {
-                return (v < 10 ? '0' : '') + v;
-            };
-            var hms = "";
+            var z = v => (v < 10 ? '0' : '') + v;
             var h = t / 3600 | 0;
             var m = t % 3600 / 60 | 0;
             var s = t % 60;
-
-            if (h != 0)
-                return h + ":" + padZero(m) + ":" + padZero(s);
-            else if (m != 0)
-                return m + ":" + padZero(s);
-            else
-                return s + " seconds";
+            return
+                (h != 0) ? h + ":" + z(m) + ":" + z(s) :
+                (m != 0) ? m + ":" + z(s) : s + " seconds";
         }
 
         function unixtimeToString(unixtime) {
-            var date = new Date(unixtime * 1000);
-            var hours = date.getHours();
-            var minutes = '0' + date.getMinutes();
-            var seconds = '0' + date.getSeconds();
-            return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+            var d = new Date(unixtime * 1000);
+            return d.getHours() + ':' + ('0' + d.getMinutes()).substr(-2) + ':' + ('0' + d.getSeconds()).substr(-2);
         }
 
         function round(value, precision = 0) {
-            d = Math.pow(10, precision);
+            var d = Math.pow(10, precision);
             return Math.round((value + 0) * d) / d;
         }
 
