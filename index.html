@@ -24,6 +24,15 @@
             padding: 1rem 0;
         }
 
+        .obox-small {
+            font-size: 1rem;
+            padding: 0.8rem 0 0.6rem 0;
+        }
+
+        .obox-small .display-name {
+            padding-top: 2px;
+        }
+
         .obox-temp {
             background-color: #208b38;
             border: solid 1px #208b38;
@@ -45,8 +54,49 @@
             background: -webkit-gradient(linear, left top, left bottom, from(#da7135), to(#c1642f));
         }
 
+        .obox-otemp {
+            background-color: #125021;
+            border: solid 1px #125021;
+            background: #125021;
+            background: -webkit-gradient(linear, left top, left bottom, from(#125021), to(#07210d));
+        }
+
+        .obox-vis {
+            background-color: #183f6c;
+            border: solid 1px #183f6c;
+            background: #183f6c;
+            background: -webkit-gradient(linear, left top, left bottom, from(#183f6c), to(#0b1f37));
+        }
+
+        .obox-spress {
+            background-color: #9f5429;
+            border: solid 1px #9f5429;
+            background: #9f5429;
+            background: -webkit-gradient(linear, left top, left bottom, from(#9f5429), to(#703b1d));
+        }
+
+        .obox-wind {
+            background-color: #3c6161;
+            border: solid 1px #3c6161;
+            background: #3c6161;
+            background: -webkit-gradient(linear, left top, left bottom, from(#3c6161), to(#2e4b4b));
+        }
+
+        .obox-dcmf {
+            background-color: #5d4b6a;
+            border: solid 1px #5d4b6a;
+            background: #5d4b6a;
+            background: -webkit-gradient(linear, left top, left bottom, from(#5d4b6a), to(#3e3246));
+        }
+
+        .obox-wind .display-dir {
+            font-size: 1.8em;
+            font-weight: normal;
+        }
+
         .obox-uptime,
-        .obox-obtime {
+        .obox-obtime,
+        .obox-dbsize {
             background-color: #454545;
             border: solid 1px #454545;
             background: #454545;
@@ -54,12 +104,13 @@
         }
 
         .display-big {
-            font-size: 2.5rem;
+            font-size: 1.8em;
             font-weight: bold;
+            display: inline-block;
         }
 
         .display-unit {
-            font-size: 1rem;
+            font-size: 0.8em;
         }
 
         .display-name {
@@ -99,6 +150,7 @@
     </style>
     <script>
         var json_path = 'http://nanase.cc/raspi/status/json/';
+        var raspi_height = 34.6;
 
         function secondToTime(t) {
             var z = v => (v < 10 ? '0' : '') + v;
@@ -126,6 +178,25 @@
             else return s;
         }
 
+        function getSeaPressure(h, t, p) {
+            return p * Math.pow(1 - 1 / ((t + 273.15) / (0.0065 * h) + 1), -5.257);
+        }
+
+        function getDiscomfortIndex(t, h) {
+            return 0.81 * t + 0.01 * h * (0.99 * t - 14.3) + 46.3;
+        }
+
+        function getSizeString(s) {
+            if (s < 1000)
+                return [s + '', 'bytes'];
+            if (s < 1024000)
+                return [round(s / 1024.0, 0), 'KiB'];
+            if (s < 1048576000)
+                return [round(s / 1048576.0, 2), 'MiB'];
+
+            return [round(s / 1073741824.0, 3), 'MiB'];
+        }
+
         function wait_start() {
             $('.updatebar').animate({
                 width: "100%"
@@ -143,8 +214,23 @@
                     $('.obox-temp .display-big').text(round(json.indoor.temperature, 2));
                     $('.obox-hum .display-big').text(round(json.indoor.humidity, 2));
                     $('.obox-press .display-big').text(round(json.indoor.pressure, 1));
+
+                    $('.obox-otemp .display-big').text(round(json.outdoor.temperature, 2));
+                    $('.obox-vis .display-big').text(round(json.outdoor.visibility / 1000.0, 1));
+                    $('.obox-spress .display-big').text(round(getSeaPressure(raspi_height, json.outdoor.temperature, json.indoor.pressure), 1));
+
+                    $('.obox-wind .display-dir').css({
+                        transform: 'rotate(' + (json.outdoor.wind_deg + 180.0) % 180.0 + 'deg) scale(1, 0.5)'
+                    });
+                    $('.obox-wind .display-big').text(round(json.outdoor.wind_speed, 1));
+                    $('.obox-dcmf .display-big').text(round(getDiscomfortIndex(json.indoor.temperature, json.indoor.humidity), 1));
+
                     $('.obox-uptime .display-big').text(secondToTime(json.indoor.uptime | 0));
                     $('.obox-obtime .display-big').text(unixtimeToString(json.indoor.time | 0));
+
+                    var dbsize = getSizeString(json.system.db_size);
+                    $('.obox-dbsize .display-big').text(dbsize[0]);
+                    $('.obox-dbsize .display-unit').text(dbsize[1]);
                 }
 
                 wait_start();
@@ -187,13 +273,47 @@
             </div>
         </div>
         <div class="row row-eq-height text-center">
-            <div class="obox obox-uptime col-xs-6 col-sm-6">
+            <div class="obox obox-small obox-otemp col-xs-4 col-sm-4">
+                <span class="display-big">--</span>
+                <span class="display-unit">℃</span>
+                <span class="display-name">Outdoor temp.</span>
+            </div>
+            <div class="obox obox-small obox-vis col-xs-4 col-sm-4">
+                <span class="display-big">--</span>
+                <span class="display-unit">km</span>
+                <span class="display-name">Visibility</span>
+            </div>
+            <div class="obox obox-small obox-spress col-xs-4 col-sm-4">
+                <span class="display-big">--</span>
+                <span class="display-unit">hPa</span>
+                <span class="display-name">Sea-level press.</span>
+            </div>
+        </div>
+        <div class="row row-eq-height text-center">
+            <div class="obox obox-small obox-wind col-xs-6 col-sm-6">
+                <span class="display-dir glyphicon glyphicon-arrow-right"></span>
+                <span class="display-big">--</span>
+                <span class="display-unit">m/s</span>
+                <span class="display-name">Wind</span>
+            </div>
+            <div class="obox obox-small obox-dcmf col-xs-6 col-sm-6">
+                <span class="display-big">--</span>
+                <span class="display-name">Discomfort index</span>
+            </div>
+        </div>
+        <div class="row row-eq-height text-center">
+            <div class="obox obox-small obox-uptime col-xs-4 col-sm-4">
                 <span class="display-big">--</span>
                 <span class="display-name">Uptime</span>
             </div>
-            <div class="obox obox-obtime col-xs-6 col-sm-6">
+            <div class="obox obox-small obox-obtime col-xs-4 col-sm-4">
                 <span class="display-big">--</span>
                 <span class="display-name">Observation time</span>
+            </div>
+            <div class="obox obox-small obox-dbsize col-xs-4 col-sm-4">
+                <span class="display-big">--</span>
+                <span class="display-unit"></span>
+                <span class="display-name">DB size</span>
             </div>
         </div>
     </div>
