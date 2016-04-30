@@ -133,11 +133,11 @@
                     }, 500, 'easeOutExpo');
 
                 if (json.succeed) {
-                    $('.obox-temp .display-big').text(round(json.temperature, 2));
-                    $('.obox-hum .display-big').text(round(json.humidity, 2));
-                    $('.obox-press .display-big').text(round(json.pressure, 1));
-                    $('.obox-uptime .display-big').text(secondToTime(json.uptime | 0));
-                    $('.obox-obtime .display-big').text(unixtimeToString(json.time | 0));
+                    $('.obox-temp .display-big').text(round(json.indoor.temperature, 2));
+                    $('.obox-hum .display-big').text(round(json.indoor.humidity, 2));
+                    $('.obox-press .display-big').text(round(json.indoor.pressure, 1));
+                    $('.obox-uptime .display-big').text(secondToTime(json.indoor.uptime | 0));
+                    $('.obox-obtime .display-big').text(unixtimeToString(json.indoor.time | 0));
                 }
 
                 wait_start();
