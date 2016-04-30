@@ -116,7 +116,14 @@
 
         function round(value, precision = 0) {
             var d = Math.pow(10, precision);
-            return Math.round((value + 0) * d) / d;
+            var s = (Math.round((value + 0) * d) / d) + '';
+            var c = s.match(/\.(\d+)/);
+
+            if (!c)
+                return s + '.' + '0'.repeat(precision);
+            if (c[1].length < precision)
+                return s + '0'.repeat(precision - c[1].length);
+            else return s;
         }
 
         function wait_start() {
