@@ -224,7 +224,7 @@
                     $('.obox-spress .display-big').text(round(getSeaPressure(raspi_height, json.outdoor.temperature, json.indoor.pressure), 1));
 
                     $('.obox-wind .display-dir').css({
-                        transform: 'rotate(' + (json.outdoor.wind_deg + 180.0) % 180.0 + 'deg) scale(1, 0.5)'
+                        transform: 'rotate(' + (json.outdoor.wind_deg) + 'deg) scale(0.5, 1)'
                     });
                     $('.obox-wind .display-big').text(round(json.outdoor.wind_speed, 1));
                     $('.obox-dcmf .display-big').text(round(getDiscomfortIndex(json.indoor.temperature, json.indoor.humidity), 1));
@@ -295,7 +295,7 @@
         </div>
         <div class="row row-eq-height text-center">
             <div class="obox obox-small obox-wind col-xs-6 col-sm-6">
-                <span class="display-dir glyphicon glyphicon-arrow-right"></span>
+                <span class="display-dir glyphicon glyphicon-arrow-down"></span>
                 <span class="display-big">--</span>
                 <span class="display-unit">m/s</span>
                 <span class="display-name">Wind</span>
