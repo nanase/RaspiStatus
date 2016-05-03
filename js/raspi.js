@@ -51,9 +51,11 @@ function getSizeString(s) {
 }
 
 function wait_start() {
-    $('.updatebar').animate({
-        width: "100%"
-    }, 60000, 'easeInExpo', load_json);
+    $('.updatebar')
+        .delay(50000)
+        .animate({
+            width: "100%"
+        }, 10000, 'linear', load_json);
 }
 
 function load_json() {
