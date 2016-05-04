@@ -75,7 +75,7 @@ function load_json() {
             $('.obox-spress .display-big').text(round(getSeaPressure(raspi_height, json.outdoor.temperature, json.indoor.pressure), 1));
 
             $('.obox-wind .display-dir').css({
-                transform: 'rotate(' + (json.outdoor.wind_deg) + 'deg) scale(0.5, 1)'
+                transform: 'rotate(' + (-json.outdoor.wind_deg + 180.0) + 'deg) scale(1, 0.5)'
             });
             $('.obox-wind .display-big').text(round(json.outdoor.wind_speed, 1));
             $('.obox-dcmf .display-big').text(round(getDiscomfortIndex(json.indoor.temperature, json.indoor.humidity), 1));
