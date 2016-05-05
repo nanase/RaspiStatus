@@ -164,7 +164,7 @@ function drawGraph(type, range) {
 
             chart.xAxis
                 .axisLabel('Time')
-                .tickFormat(d => d3.time.format('%m-%d %H:%M')(new Date(d * 1000)));
+                .tickFormat(d => d3.time.format(dateFormatMap[range])(new Date(d * 1000)));
 
             chart.yAxis
                 .axisLabel(funcMap[type].yname)
@@ -187,7 +187,7 @@ function drawGraph(type, range) {
 
             chart.xAxis
                 .axisLabel('Time')
-                .tickFormat(d => d3.time.format('%m-%d %H:%M')(new Date(d * 1000)));
+                .tickFormat(d => d3.time.format(dateFormatMap[range])(new Date(d * 1000)));
 
             chart.yAxis
                 .axisLabel(funcMap[type].yname)
@@ -204,6 +204,15 @@ function drawGraph(type, range) {
         });
     }, 'json');
 }
+
+var dateFormatMap = {
+    '6h': '%H:%M',
+    '12h': '%H:%M',
+    '1d': '%H:%M',
+    '3d': '%d %H:%M',
+    '10d': '%d %H',
+    '30d': '%m-%d'
+};
 
 var funcMap = {
     temp: {
