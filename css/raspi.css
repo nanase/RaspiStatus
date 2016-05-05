@@ -74,6 +74,25 @@ body {
     background: #454545;
     background: -webkit-gradient(linear, left top, left bottom, from(#454545), to(#222222));
 }
+.obox-graph {
+    background-color: #fff;
+    border: solid 1px #fff;
+    background: #fff;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd));
+    padding: 1rem;
+}
+.visible-xs.obox-graph {
+    padding: 0.5rem;
+}
+.obox-graph .display-name {
+    color: black;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+.obox-graphbutton {
+    font-size: 1.1rem;
+    padding: 5px;
+}
 .display-big {
     font-size: 1.8em;
     font-weight: bold;

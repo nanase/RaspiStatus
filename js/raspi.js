@@ -101,3 +101,129 @@ function load_json() {
 }
 
 $(load_json);
+
+// ----- graph ----- //
+
+var graphType = 'temp';
+var graphRange = '12h';
+
+function expandData2(data) {
+    var indoor = [],
+        outdoor = [];
+
+    for (var i = 0; i < data.indoor.length; i++) {
+        indoor.push({
+            x: data.indoor[i][0],
+            y: data.indoor[i][1]
+        });
+    }
+
+    for (var i = 0; i < data.outdoor.length; i++) {
+        outdoor.push({
+            x: data.outdoor[i][0],
+            y: data.outdoor[i][1]
+        });
+    }
+
+    return [{
+        values: indoor,
+        key: 'Indoor',
+        color: '#ff7f0e'
+    }, {
+        values: outdoor,
+        key: 'Outdoor',
+        color: '#2ca02c'
+    }];
+}
+
+function expandData(data) {
+    var indoor = [];
+
+    for (var i = 0; i < data.indoor.length; i++) {
+        indoor.push({
+            x: data.indoor[i][0],
+            y: data.indoor[i][1]
+        });
+    }
+
+    return [{
+        values: indoor,
+        key: 'Indoor',
+        color: '#ff7f0e'
+    }];
+}
+
+function drawGraph(type, range) {
+    $.post('http://nanase.cc/raspi/stat/', {
+        t: type,
+        r: range
+    }, function(data) {
+        nv.addGraph(function() {
+            var chart = nv.models.lineChart()
+                .useInteractiveGuideline(true);
+
+            chart.xAxis
+                .axisLabel('Time')
+                .tickFormat(d => d3.time.format('%m-%d %H:%M')(new Date(d * 1000)));
+
+            chart.yAxis
+                .axisLabel(funcMap[type].yname)
+                .tickFormat(d3.format(funcMap[type].yformat));
+
+            d3.select('.hidden-xs .obox-graph .graph svg')
+                .datum(funcMap[type].func(data.data))
+                .transition().duration(500)
+                .call(chart);
+
+            nv.utils.windowResize(chart.update);
+
+            return chart;
+        });
+
+        nv.addGraph(function() {
+            var chart = nv.models.lineChart()
+                .margin({left: 60, bottom: 38, top: 0})
+                .useInteractiveGuideline(true);
+
+            chart.xAxis
+                .axisLabel('Time')
+                .tickFormat(d => d3.time.format('%m-%d %H:%M')(new Date(d * 1000)));
+
+            chart.yAxis
+                .axisLabel(funcMap[type].yname)
+                .tickFormat(d3.format(funcMap[type].yformat));
+
+            d3.select('.visible-xs.obox-graph .graph svg')
+                .datum(funcMap[type].func(data.data))
+                .transition().duration(500)
+                .call(chart);
+
+            nv.utils.windowResize(chart.update);
+
+            return chart;
+        });
+    }, 'json');
+}
+
+var funcMap = {
+    temp: {
+        func: expandData2,
+        yname: 'Temperature (℃)',
+        yformat: '.02f',
+        name: 'Temperature'
+    },
+    hum: {
+        func: expandData,
+        yname: 'Humidity (%)',
+        yformat: '.02f',
+        name: 'Humidity'
+    },
+    press: {
+        func: expandData,
+        yname: 'Pressure (hPa)',
+        yformat: '.01f',
+        name: 'Pressure'
+    },
+};
+
+drawGraph(graphType, graphRange);
